@@ -1,7 +1,7 @@
 const apiUrl = 'http://localhost:3000/task';
 
 const form = document.getElementById('task-form');
-const taskList = document.getElementById('task-list');
+const takslist = document.getElementById('task-list');
 
 form.addEventListener('submit', async(e) => {
     e.preventDefault();
@@ -9,23 +9,112 @@ form.addEventListener('submit', async(e) => {
     const title = document.getElementById('title').value;
     const description = document.getElementById('description').value;
 
-try {
-    const res = await fetch(apiUrl, {
-        method: 'POST'
-        headers: {'Content-Type' : 'application/json'},
-        body: JSON.stringify({titel, description})
-    });
+    try{
+        const res = await fetch(apiUrl, {
+            method:'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ title, description })
+        });
 
-if (!res.ok) throw new Error('Erro ao adicionar tarefa');
 
-const task await.res.json();
-form.requestFullscreen();
+        if (!res.ok) throw new Error('Erro ao adicionar tarefa');
 
-addTaskToUl(task);
 
-} catch (error) {
+        const task = await res.json();
+        form.reset();
+
+
+        addTaskToUl(task);
+
+    } catch (err) {
+        alert('erro ao salvar tarefa: ' + err.message);
+    }
+  
     
-}
-
 });
+
+function addTaskToUl(task) {
+    const li = document.createElement('li');
+    li.className = task.completed ? "completed" : "";
+
+    const description = task.description ? task.description.trim() : "";
+
+    const text = description ? ` ${desc.title} - $ {task.description}` : task.title
+    
+    
+    li.innerHTML = `
+    
+    <span>${text}</span>
+
+    <div>
+    <button onclick='toggleComplete(${task.id}, ${task.completed})'>✔️</button>
+    <button onclick='deleteTask(${task.id})'>🗑️</button>
+    </div>
+
+    `;
+
+    takslist.appendChild(li);
+};
+    async function loadtask () {
+        try {
+            
+            const res = await fetch(apiUrl);
+
+
+            if (!res.ok) throw new Error("Erro ao carregar tarefas");
+
+            const tasks = await res.json();
+
+            takslist.innerHTML = "";
+            tasks.forEach(addTaskToUl);
+
+        } catch (err) {
+            alert("Erro ao carregar tarefas" + err.message);
+
+        }
+    };
+    
+    async function toggleComplete (id, completed) {
+        try {
+            const res = await fetch({apiUrl}/{id});
+            const task = await res.json();
+            
+            await fetch({apiUrl}/{id}, {
+                method: 'PUT',
+                headers: {'Content-Type':'application/json'},
+                body:JSON.stringify({
+                    title: task.title, 
+                    description: task.description, 
+                    completed: !completed
+
+                }) 
+            });
+            loadtask();
+
+
+
+
+
+        } catch (err) {
+            alert('Erro ao atualizar tarefa: ' + err.message);
+
+        }
+    }
+        
+        async function deleteTask (id) {
+            try {
+            await fetch({apiUrl}/{id}, {
+
+                method: 'DELETE'
+
+            });
+            
+            loadtask();
+
+            } catch (err) {
+            alert('Erro ao excluir tarefa:' + err.message);
+
+        }
+    
+    }
 
